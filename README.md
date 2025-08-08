@@ -1,0 +1,2 @@
+# USID
+A **Universal Singer IDentifier** to identify your voicebank anywhere. Introduced as part of Mikoto Studio's OpenVB effort, USID allows for seamless voicebank exchange between hosts and users. It does this by computing a hash of your voicebank's most important configuration files and images.
