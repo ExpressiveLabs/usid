@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use uuid::Uuid;
+use anyhow::{bail, Result};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize, Serializer};
@@ -18,6 +19,25 @@ impl USID {
 
     pub fn from_bytes(bytes: &[u8; 16]) -> Self {
         Self(*bytes)
+    }
+
+    pub fn from_string(s: &str) -> Result<Self> {
+        let data = if s.starts_with("usid:") {
+            // Extract the fallback UUID and data from the string
+            let parts: Vec<&str> = s.split(':').collect();
+            if parts.len() < 2 {
+                bail!("Invalid USID format")
+            }
+            let hash = parts[1];
+            hash
+        } else {
+            &s
+        };
+
+        let undashed = data.replace("-", "");
+
+        let data: [u8; 16] = undashed.as_bytes()[..16].try_into()?;
+        Ok(Self(data))
     }
 
     pub fn as_string(&self) -> String {
@@ -64,22 +84,7 @@ impl<'de> Deserialize<'de> for USID {
     {
         // First, check if the USID identifier is present ("usid:...")
         let usid_str: String = Deserialize::deserialize(deserializer)?;
-        let data = if usid_str.starts_with("usid:") {
-            // Extract the fallback UUID and data from the string
-            let parts: Vec<&str> = usid_str.split(':').collect();
-            if parts.len() < 2 {
-                return Err(serde::de::Error::custom("Invalid USID format"));
-            }
-            let hash = parts[1];
-            hash
-        } else {
-            &usid_str
-        };
-
-        let undashed = data.replace("-", "");
-
-        let data: [u8; 16] = undashed.as_bytes()[..16].try_into().map_err(serde::de::Error::custom)?;
-        Ok(Self(data))
+        USID::from_string(&usid_str).map_err(serde::de::Error::custom)
     }
 }
 
