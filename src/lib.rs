@@ -6,7 +6,7 @@ use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Default, Clone, Copy, Debug, Eq, Hash)]
-/// flutter_rust_bridge:non_opaque
+/// flutter_rust_bridge:opaque
 pub struct USID([u8; 16]);
 
 impl USID {
