@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize, Serializer};
 #[derive(Default, Clone, Copy, Debug, Eq, Hash)]
 /// flutter_rust_bridge:opaque
 pub struct USID {
-    data: [u8; 16]
+    pub data: [u8; 16]
 }
 
 impl USID {
