@@ -7,19 +7,21 @@ use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Default, Clone, Copy, Debug, Eq, Hash)]
 /// flutter_rust_bridge:opaque
-pub struct USID([u8; 16]);
+pub struct USID {
+    data: [u8; 16]
+}
 
 impl USID {
     pub fn new() -> Self {
-        Self([0; 16])
+        Self { data: [0; 16] }
     }
 
     pub fn from_uuid(uuid: Uuid) -> Self {
-        Self(uuid.into_bytes().clone())
+        Self { data: uuid.into_bytes().clone() }
     }
 
     pub fn from_bytes(bytes: &[u8; 16]) -> Self {
-        Self(*bytes)
+        Self { data: *bytes }
     }
 
     pub fn from_string(s: &str) -> Result<Self> {
@@ -38,11 +40,11 @@ impl USID {
         let undashed = data.replace("-", "");
 
         let data: [u8; 16] = undashed.as_bytes()[..16].try_into()?;
-        Ok(Self(data))
+        Ok(Self { data })
     }
 
     pub fn as_string(&self) -> String {
-        let str = String::from_utf8_lossy(&self.0);
+        let str = String::from_utf8_lossy(&self.data);
 
         // Insert dashes every 4 characters
         let dashed = str.chars().enumerate().map(|(i, c)| {
@@ -57,11 +59,11 @@ impl USID {
     }
 
     pub fn as_uuid(&self) -> Uuid {
-        Uuid::from_slice(&self.0).unwrap_or(Uuid::nil())
+        Uuid::from_slice(&self.data).unwrap_or(Uuid::nil())
     }
 
     pub fn is_empty(&self) -> bool {
-        self.0 == [0; 16]
+        self.data == [0; 16]
     }
 }
 
@@ -91,12 +93,12 @@ impl<'de> Deserialize<'de> for USID {
 
 impl PartialEq for USID {
     fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
+        self.data == other.data
     }
 }
 
 impl Display for USID {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}",self.as_string())
+        write!(f, "{}", self.as_string())
     }
 }
